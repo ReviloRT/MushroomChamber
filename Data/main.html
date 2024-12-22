@@ -201,6 +201,24 @@
     overlayBg.style.display = "none";
   }
 
+  const errorMap = {
+      1: "HUMIDITY SENSOR",
+      2: "CO2 SENSOR",
+      4: "SD CARD",
+      8: "REAL TIME CLOCK",
+      16: "SERVER"
+  };
+
+  function decodeError(errorCode) {
+      let errors = [];
+      for (const [bit, name] of Object.entries(errorMap)) {
+          if (errorCode & bit) {
+              errors.push(name);
+          }
+      }
+      return errors.length ? errors.join(", ") : " ";
+  }
+
   var timeData = [];
   var tempData = [];
   var humData = [];
@@ -334,6 +352,7 @@
     co2Chart.update();
     actChart.update();
   }
+  
 
   function updateCurrData() {
     var xhttp = new XMLHttpRequest();
@@ -348,7 +367,7 @@
         if (!parseInt(obs[8])){
           document.getElementById("error").innerHTML = "";
         } else {
-          document.getElementById("error").innerHTML = "ERROR " + parseInt(obs[8]).toString()
+          document.getElementById("error").innerHTML = decodeError(parseInt(obs[8])) + " ERROR";
         }
         if (parseInt(obs[5])) {
           document.getElementById("humState").innerHTML = "ON";
