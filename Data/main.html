@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Fruiting Chamber Data</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="#">
+  <!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- <script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script> -->
+  <script src="script.js"></script>
+
+</head>
+
+<body class="w3-light-grey">
+
+    <!-- Top Bar -->
+    <div class="w3-bar w3-top w3-black w3-large" style="z-index:4">
+      <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();">Menu</button>
+      <span class="w3-bar-item w3-right">By Ollie, v11.0</span>
+    </div>
+
+    <!-- Sidebar/menu -->
+    <nav class="w3-sidebar w3-collapse w3-white w3-animate-left" style="z-index:3;width:300px;" id="mySidebar"><br>
+      <div class="w3-container">
+        <h5>Pages</h5>
+      </div>
+      <div class="w3-bar-block">
+        <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu">Close Menu</a>
+        <a href="#CurrentData" class="w3-bar-item w3-button w3-padding w3-blue">Current Data</a>
+        <a href="#Graphs" class="w3-bar-item w3-button w3-padding">Graphs</a>
+        <a href="#Settings" class="w3-bar-item w3-button w3-padding">Settings</a>
+        <a href="#RawData" class="w3-bar-item w3-button w3-padding">Raw Data</a>
+      </div>
+    </nav>
+
+    <!-- Overlay effect when opening sidebar on small screens -->
+    <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+    <!-- Content -->
+    <div class="w3-main" style="margin-left:300px;margin-top:43px;">
+
+      <!-- Header -->
+      <header class="w3-container w3-bar" style="padding-top:22px">
+        <h3 class="w3-bar-item" style="padding-left:0px"><b>Fruiting Chamber</b></h3>
+        <h3 class="w3-bar-item w3-text-red"><b id="error"></b></h3>
+      </header>
+
+      <!-- Current Data -->
+      <div class="w3-row-padding w3-margin-bottom" id="CurrentData">
+        <div class="w3-quarter">
+          <div class="w3-container w3-green w3-padding-8">
+            <h3>Current Time</h3>
+            <div class="w3-right">
+              <h1 id="time">N/A</h1>
+            </div>
+          </div>
+        </div>
+        <div class="w3-quarter">
+          <div class="w3-container w3-red w3-padding-8">
+            <h3>Temperature (C)<h3>
+            <div class="w3-right">
+              <h1 id="temp">N/A</h1>
+            </div>
+          </div>
+        </div>
+        <div class="w3-quarter">
+          <div class="w3-container w3-blue w3-padding-8">
+            <h3>Humidity (%)</h3>
+            <div class="w3-right">
+              <h1 id="humid">N/A</h1>
+            </div>
+          </div>
+        </div>
+        <div class="w3-quarter">
+          <div class="w3-container w3-orange w3-text-white w3-padding-8">
+            <h3>Co2 (ppm)</h3>
+            <div class="w3-right">
+              <h1 id="co2">N/A</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w3-row-padding w3-margin-bottom" id="Actuator States">
+        <div class="w3-half">
+          <div class="w3-container w3-teal w3-text-white w3-padding-8">
+            <h3>Humidifier</h3>
+            <div class="w3-right">
+              <h1 id="humState">OFF</h1>
+            </div>
+          </div>
+        </div>
+        <div class="w3-half">
+          <div class="w3-container w3-purple w3-text-white w3-padding-8">
+            <h3>Outflow Fan</h3>
+            <div class="w3-right">
+              <h1 id="fanState">OFF</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphs -->
+      <div class="w3-container w3-margin-bottom" id="Graphs">
+        <div class="w3-container w3-bar" style="padding:0px;margin:0px;">
+          <button class="w3-bar-item w3-button" id="todayBut">Today</button>
+          <button class="w3-bar-item w3-button" id="last2But">Last 2 days</button>
+          <label class="w3-bar-item">From # days prev:</label>
+          <input class="w3-bar-item" id="fromInput" style="width:50px"></input>
+          <label class="w3-bar-item">To # days prev:</label>
+          <input class="w3-bar-item" id="toInput" style="width:50px"></input>
+          <button class="w3-bar-item w3-button" id="updateBut">Update</button>
+        </div>
+        <p>Temperature</p>
+        <div>
+          <canvas id="tempChart" style="height:50vh; width:90vw"></canvas>
+        </div>
+
+        <p>Humidity</p>
+        <div>
+          <canvas id="humChart" style="height:50vh; width:90vw"></canvas>
+        </div>
+
+        <p>CO2</p>
+        <div>
+          <canvas id="co2Chart" style="height:50vh; width:90vw"></canvas>
+        </div>
+
+        <p>Actuators</p>
+        <div>
+          <canvas id="actChart" style="height:50vh; width:90vw"></canvas>
+        </div>
+
+      </div>
+      <!-- <hr> -->
+
+      <!-- Settings -->
+      <div class="w3-container w3-dark-grey w3-padding-16" id="Settings">
+        <div class="w3-bar">
+          <h4 class="w3-bar-item"><b>Settings</b></h4>
+          <p class="w3-bar-item w3-button" id="settingsResetButton">Reset Values</p>
+          <p class="w3-bar-item w3-button" id="settingsUpdateButton">Update Server</p>
+        </div>
+        <div class="w3-row">
+          <div class="w3-container w3-third">
+            <h5 class="w3-bottombar w3-border-green">Humidifier Set Point</h5>
+            <input type="range" id="HumSetSlider" value="0" min="0" max="100.0">
+            <p id="HumSetText" >N/A</p>
+          </div>
+          <div class="w3-container w3-third">
+            <h5 class="w3-bottombar w3-border-red">Airflow Fan Setpoint</h5>
+            <input type="range" id="Co2SetSlider" value="400" min="400" max="2000">
+            <p id="Co2SetText" >N/A</p>
+          </div>
+          <div class="w3-container w3-third">
+            <h5 class="w3-bottombar w3-border-orange">Humidfier Fan with Airflow Fan</h5>
+            <input type="range" id="F1f2SetSlider" value="0" min="0" max="2000">
+            <p id="F1f2SetText" >N/A</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Raw Data -->
+      <footer class="w3-container w3-padding-16 w3-light-grey" id="RawData">
+        <h5><b>Raw Data</b></h5>
+        <div id="rawData">
+        </div>
+      </footer>
+
+      <!-- End page content -->
+    </div>
+
+<script>
+
+  // window.onload = function() {
+  //   console.log(new Date().toLocaleTimeString());
+  // };
+
+  // Get the Sidebar
+  var mySidebar = document.getElementById("mySidebar");
+
+  // Get the DIV with overlay effect
+  var overlayBg = document.getElementById("myOverlay");
+
+  // Toggle between showing and hiding the sidebar, and add overlay effect
+  function w3_open() {
+    if (mySidebar.style.display === 'block') {
+      mySidebar.style.display = 'none';
+      overlayBg.style.display = "none";
+    } else {
+      mySidebar.style.display = 'block';
+      overlayBg.style.display = "block";
+    }
+  }
+
+  // Close the sidebar with the close button
+  function w3_close() {
+    mySidebar.style.display = "none";
+    overlayBg.style.display = "none";
+  }
+
+  var timeData = [];
+  var tempData = [];
+  var humData = [];
+  var co2Data = [];
+  var actHumData = [];
+  var actFanData = [];
+
+  const tempctx = document.getElementById('tempChart');
+  const humctx = document.getElementById('humChart');
+  const co2ctx = document.getElementById('co2Chart');
+  const actctx = document.getElementById('actChart');
+
+  const humSetSlider = document.getElementById("HumSetSlider");
+  const co2SetSlider = document.getElementById("Co2SetSlider");
+  const f1f2SetSlider = document.getElementById("F1f2SetSlider");
+  const humSetText = document.getElementById("HumSetText");
+  const co2SetText = document.getElementById("Co2SetText");
+  const f1f2SetText = document.getElementById("F1f2SetText");
+
+  const todayBut = document.getElementById("todayBut");
+  const last2But = document.getElementById("last2But");
+  const updateBut = document.getElementById("updateBut");
+  const fromInput = document.getElementById("fromInput");
+  const toInput = document.getElementById("toInput");
+
+  resetSettingValues();
+
+  const settingsResetButton = document.getElementById("settingsResetButton");
+  const settingsUpdateButton = document.getElementById("settingsUpdateButton");
+
+  var tempChart = new Chart(tempctx, {
+    type: 'line',
+    data: {
+      labels: timeData,
+      datasets: [{
+        label: 'Temperature in deg C',
+        data: tempData,
+      }]
+    },
+    options: {
+      animations: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+  var humChart = new Chart(humctx, {
+    type: 'line',
+    data: {
+      labels: timeData,
+      datasets: [{
+        label: 'Huminity %',
+        data: humData,
+      }]
+    },
+    options: {
+      animations: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+  var co2Chart = new Chart(co2ctx, {
+    type: 'line',
+    data: {
+      labels: timeData,
+      datasets: [{
+        label: 'Co2 in ppm',
+        data: co2Data,
+      }]
+    },
+    options: {
+      animations: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+  var actChart = new Chart(actctx, {
+    type: 'line',
+    data: {
+      labels: timeData,
+      datasets: [
+        {
+          label: 'Humidifier',
+          data: actHumData,
+        }, {
+          label: 'Fan',
+          data: actFanData,
+        }]
+    },
+    options: {
+      animations: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+
+  function resetData() {
+    timeData = [];
+    tempData = [];
+    humData = [];
+    co2Data = [];
+    actHumData = [];
+    actFanData = [];
+    var rawDataRef = document.getElementById("rawData");
+    while (rawDataRef.firstChild) { rawDataRef.removeChild(rawDataRef.lastChild);}
+  }
+
+  function updateCharts() {
+    tempChart.data.labels = timeData;
+    tempChart.data.datasets[0].data = tempData;
+    humChart.data.labels = timeData;
+    humChart.data.datasets[0].data = humData;
+    co2Chart.data.labels = timeData;
+    co2Chart.data.datasets[0].data = co2Data;
+    actChart.data.labels = timeData;
+    actChart.data.datasets[0].data = actHumData;
+    actChart.data.datasets[1].data = actFanData;
+    tempChart.update();
+    humChart.update();
+    co2Chart.update();
+    actChart.update();
+  }
+
+  function updateCurrData() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var obs = (this.responseText.substring(0,this.responseText.length-1)).split(",");
+        let date = new Date((parseInt(obs[0]))*1000-13*60*60*1000);
+        document.getElementById("time").innerHTML = date.getHours().toString() + ":" + date.getMinutes().toString();
+        document.getElementById("temp").innerHTML = parseFloat(obs[1]).toString();
+        document.getElementById("humid").innerHTML = parseFloat(obs[2]).toString();
+        document.getElementById("co2").innerHTML = parseFloat(obs[3]).toString();
+        if (!parseInt(obs[8])){
+          document.getElementById("error").innerHTML = "";
+        } else {
+          document.getElementById("error").innerHTML = "ERROR " + parseInt(obs[8]).toString()
+        }
+        if (parseInt(obs[5])) {
+          document.getElementById("humState").innerHTML = "ON";
+        } else {
+          document.getElementById("humState").innerHTML = "OFF";
+        }
+        if (parseInt(obs[7])) {
+          document.getElementById("fanState").innerHTML = "ON";
+        } else {
+          document.getElementById("fanState").innerHTML = "OFF";
+        }
+      }
+    }
+    xhttp.open("GET", "/currData", true);
+    xhttp.send();
+  }
+
+  function loadData(subMonth) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var rawDataRef = document.getElementById("rawData");
+        var observations = this.responseText.split("\n");
+        for (var i = 0; i < observations.length-1; i++) {
+          const line = document.createElement("p");
+          line.innerHTML = observations[i].substring(0,observations[i].length-2);
+          rawDataRef.appendChild(line);
+          var obs = (observations[i].substring(0,observations[i].length-2)).split(",");
+          // Update datasets
+          let date = new Date((parseInt(obs[0]))*1000-13*60*60*1000);
+          timeData.push(date.getHours().toString() + ":" + date.getMinutes().toString());
+          tempData.push(parseFloat(obs[1]));
+          humData.push(parseFloat(obs[2]));
+          co2Data.push(parseFloat(obs[3]));
+          actHumData.push(parseInt(obs[5]));
+          actFanData.push(parseInt(obs[7]));
+        }
+        updateCharts();
+      }
+    }
+    xhttp.open("GET", "/oldData", true);
+    xhttp.setRequestHeader("subMonth", subMonth);
+    xhttp.send();
+  }
+
+  function getserverSettings() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        resetSettingValues();
+        var settingsState = this.responseText.split(',');
+        humSetText.innerHTML = parseFloat(settingsState[1]).toFixed(2);
+        co2SetText.innerHTML = parseFloat(settingsState[2]).toFixed(2);
+        f1f2SetText.innerHTML = parseFloat(settingsState[3]).toFixed(2);
+        humSetSlider.value = parseFloat(settingsState[1]);
+        co2SetSlider.value = parseFloat(settingsState[2]);
+        f1f2SetSlider.value = parseFloat(settingsState[3]);
+      }
+    }
+    xhttp.open("GET", "/getSettings", true);
+    xhttp.send();
+  }
+
+  function setserverSettings() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        getserverSettings();
+      }
+    }
+    xhttp.open("POST", "/setSettings", true);
+    xhttp.setRequestHeader("Hum", humSetSlider.value);
+    xhttp.setRequestHeader("Co2", co2SetSlider.value);
+    xhttp.setRequestHeader("F1f2", f1f2SetSlider.value);
+    xhttp.send();
+  }
+
+  function resetSettingValues() {
+    humSetSlider.value = 0;
+    co2SetSlider.value = 400;
+    f1f2SetSlider.value = 0;
+    humSetText.innerHTML = "N/A";
+    co2SetText.innerHTML = "N/A";
+    f1f2SetText.innerHTML = "N/A";
+  }
+
+  settingsResetButton.onclick = function() {
+    getserverSettings();
+  }
+
+  settingsUpdateButton.onclick = function() {
+    setserverSettings();
+  }
+
+  humSetSlider.onchange = function() {
+    humSetText.innerHTML = +parseFloat(humSetSlider.value).toFixed(3);
+  }
+
+  co2SetSlider.onchange = function() {
+    co2SetText.innerHTML = +parseFloat(co2SetSlider.value).toFixed(3);
+  }
+
+  f1f2SetSlider.onchange = function() {
+    f1f2SetText.innerHTML = +parseFloat(f1f2SetSlider.value).toFixed(3);
+  }
+
+  todayBut.onclick = function() {
+    resetData();
+    loadData(0);
+  }
+
+  last2But.onclick = function() {
+    resetData();
+    loadData(0);
+    loadData(1);
+  }
+
+  updateBut.onclick = function() {
+    if (!isNaN(fromInput.value) && !isNaN(toInput.value)) {
+      resetData();
+      var a = parseInt(fromInput.value);
+      var b = parseInt(toInput.value);
+      var start = Math.max(a,b);
+      var end =  Math.max( Math.min(a,b),0);
+      for (var i = start; i >= end; i--) {
+        loadData(i);
+      }
+    }
+  }
+
+  loadData(0);
+  updateCurrData();
+  getserverSettings();
+  setInterval(updateCurrData, 10000);
+
+</script>
+</body>
+
+</html>
