@@ -1,4 +1,4 @@
-
+#include "Arduino.h"
 #include "Defines.h"
 
 #include "AbstractRTC.h"
